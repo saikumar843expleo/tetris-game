@@ -5,7 +5,9 @@ pipeline {
     // }
 
     environment {
-        SCANNER_HOME = tool 'sonar-scanner'
+        SONAR_PROJECT_KEY = 'ganeshu8wjz7r_cookbook_repo'
+        SONAR_ORG = 'ganeshu8wjz7r'
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -21,22 +23,30 @@ pipeline {
             }
         }
 
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         withSonarQubeEnv('sonar-server') {
+        //             sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=tetris \
+        //             -Dsonar.projectKey=tetris'''
+        //         }
+        //     }
+        // }
+
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=tetris \
-                    -Dsonar.projectKey=tetris'''
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=${SONAR_ORG} -Dsonar.login=${SONAR_TOKEN}'
                 }
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     steps {
+        //         script {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+        //         }
+        //     }
+        // }
 
         // stage('Install Dependencies') {
         //     steps {
@@ -53,7 +63,8 @@ pipeline {
 
         stage('Trivy FS Scan') {
             steps {
-                sh 'trivy fs . > trivyfs.txt'
+                sh 'docker run --rm aquasec/trivy fs . > trivyfs.txt'
+                // trivy fs . > trivyfs.txt'
             }
         }
 
@@ -81,7 +92,7 @@ pipeline {
 
         stage('Trivy Image Scan') {
             steps {
-                sh 'trivy image saikumar843expleo/tetris:latest > trivyimage.txt'
+                sh 'docker run --rm aquasec/trivy image saikumar843expleo/tetris:latest > trivyimage.txt'
             }
         }
 

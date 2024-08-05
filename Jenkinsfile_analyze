@@ -8,7 +8,6 @@ pipeline {
         SONAR_PROJECT_KEY = 'tetris_devsecopsdemo'
         SONAR_ORG = 'tetris'
         SONAR_TOKEN = '699a27a0fd231118b65003fc50b391d5095181b0'
-        SCANNER_HOME = tool 'SonarScanner'
     }
 
     stages {
@@ -36,13 +35,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''${SCANNER_HOME}/bin/sonar-scanner \
-                    -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                    -Dsonar.organization=${SONAR_ORG} \
-                    -Dsonar.login=${SONAR_TOKEN} \
-                    -Dsonar.sources=. \
-                    -Dsonar.javascript.lcov.report=coverage/lcov.info \
-                    -Dsonar.host.url=https://sonarcloud.io'''
+                    sh '''
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.organization=${SONAR_ORG} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.sources=. \
+                        -Dsonar.javascript.lcov.report=coverage/lcov.info \
+                        -Dsonar.host.url=https://sonarcloud.io
+                    '''
                 }
             }
         }

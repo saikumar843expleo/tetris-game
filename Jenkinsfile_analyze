@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        jdk 'jdk16'
+        jdk 'jdk17'
         // Uncomment this if you need Node.js
         // nodejs 'node16'
     }
@@ -19,7 +19,7 @@ pipeline {
 
         stage('Checkout from Git') {
             steps {
-                git branch: 'main', url: 'https://github.com/MohamedMagdy840/tetris-game.git'
+                git branch: 'main', url: 'https://github.com/saikumar843expleo/tetris-game.git'
             }
         }
 
@@ -40,11 +40,11 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         sh 'npm install'
+        //     }
+        // }
 
 //        stage('OWASP FS SCAN') {
 //            steps {
@@ -73,29 +73,29 @@ pipeline {
                     sh 'docker build -t tetris .'
 
                     // Tag Docker image with a new tag
-                    sh 'docker tag tetris mohamedmagdy840/tetris:latest'
+                    sh 'docker tag tetris saikumar843expleo/tetris:latest'
 
                     // Push Docker image to Docker Hub
-                    sh 'docker push mohamedmagdy840/tetris:latest'
+                    sh 'docker push saikumar843expleo/tetris:latest'
                 }
             }
         }
 
         stage('Trivy Image Scan') {
             steps {
-                sh 'trivy image mohamedmagdy840/tetris:latest > trivyimage.txt'
+                sh 'trivy image saikumar843expleo/tetris:latest > trivyimage.txt'
             }
         }
 
         stage('Checkout Deployment File') {
             steps {
-                git branch: 'main', url: 'https://github.com/MohamedMagdy840/tetris-deployment-file.git'
+                git branch: 'main', url: 'https://github.com/saikumar843expleo/tetris-deployment-file.git'
             }
         }
 
         stage('Update Deployment File') {
             environment {
-                GIT_USER_NAME = "MohamedMagdy840"
+                GIT_USER_NAME = "saikumar843expleo"
             }
             steps {
                 script {
@@ -104,15 +104,15 @@ pipeline {
                             # Update the local deployment file
                             git config user.email "jenkins@gmail.com"
                             git config user.name "jenkins"
-                            sed -i 's|image: .*|image: mohamedmagdy840/tetris:latest|' deployment-service.yaml
+                            sed -i 's|image: .*|image: saikumar843expleo/tetris:latest|' deployment-service.yaml
                             
                             # Pull latest changes from the remote repository
                             git pull origin main
 
                             # Configure Git remote to use credentials for pushing
-                            git remote set-url origin https://MohamedMagdy840:$GITHUB_TOKEN@github.com/MohamedMagdy840/tetris-deployment-file.git
+                            git remote set-url origin https://saikumar843expleo:$GITHUB_TOKEN@github.com/saikumar843expleo/tetris-deployment-file.git
                             git add deployment-service.yaml
-                            git commit -m 'Update deployment image to version mohamedmagdy840/tetris:latest'
+                            git commit -m 'Update deployment image to version saikumar843expleo/tetris:latest'
                             git push origin HEAD:main
 
                         '''
